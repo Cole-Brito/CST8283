@@ -97,7 +97,7 @@
        01 TEMP-VARIABLES.
            05 ADJUSTED-COST-BASE PIC 9(6)V99.
            05 MARKET-VALUE       PIC 9(6)V99.
-           05 GAIN-LOSS          PIC 9(6)V99.
+           05 GAIN-LOSS          PIC S9(6)V99.
 
        01 AUDIT-RECORD.
            05 AUDIT-RECORDS-READ    PIC 9(2).
