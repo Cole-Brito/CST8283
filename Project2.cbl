@@ -1,6 +1,6 @@
       ******************************************************************
       * Authors: Paul Squires, 040766405
-      *          Cole Brito,
+      *          Cole Brito, 041074688
       * Course and Section: CST8283 302
       * Date: Mar 18, 2025
       * Purpose: Project 2
@@ -33,7 +33,7 @@
            05 AVERAGE-COST   PIC 9(4)V99.
 
        FD STOCK-FILE-IN.
-       01 STOCK-RECORD.
+       01 STOCK-RECORD OCCURS 20 TIMES.
            05 STOCK-SYMBOL-S  PIC X(7).
            05 STOCK-NAME      PIC X(25).
            05 CLOSING-PRICE   PIC 9(4)V99.
@@ -52,7 +52,7 @@
            05 FILLER                   PIC X(3) VALUE SPACES.
            05 RECORD-MARKET-VALUE      PIC $$,$$9.99.
            05 FILLER                   PIC X(3) VALUE SPACES.
-           05 RECORD-GAIN-LOSS         PIC $$,$$9.99.
+           05 RECORD-GAIN-LOSS         PIC $$,$$9.99CR.
            05 RECORD-MINUS             PIC X.
 
        WORKING-STORAGE SECTION.
@@ -74,10 +74,54 @@
            05 FILLER                   PIC X(3) VALUE SPACES.
            05 HEADER-GAIN-LOSS         PIC X(9) VALUE "GAIN/LOSS".
 
+       01 CONTROL-FIELDS.
+           05 EOF-FLAG    PIC A VALUE "N".
+           05 SUB-1       PIC 9(2) VALUE 1.
+           05 STOCK-FOUND PIC A VALUE "N".
+
+       01 AUDIT-RECORD.
+           05 AUDIT-RECORDS-READ    PIC 9(2).
+           05 AUDIT-RECORDS-WRITTEN PIC 9(2).
+
 
        PROCEDURE DIVISION.
-       MAIN-PROCEDURE.
-            DISPLAY "Hello world"
+       100-MAIN-PROCEDURE.
+            PERFORM 200-INTIALIZE.
+            PERFORM 201-GENERATE-REPORT-RECORDS.
+            PERFORM 202-TERMINATE.
             STOP RUN.
+
+       200-INTIALIZE.
+            PERFORM 300-OPEN-FILES.
+            PERFORM 301-READ-STOCK-FILE VARYING SUB-1 FROM 1 BY 1
+                UNTIL SUB-1 > 20 OR EOF-FLAG = "Y".
+
+       201-GENERATE-REPORT-RECORDS.
+            PERFORM 302-CREATE-REPORT-HEADER.
+            MOVE "N" TO EOF-FLAG.
+            PERFORM 303-CREATE-REPORT-LINE UNTIL EOF-FLAG = "Y".
+
+       202-TERMINATE.
+            PERFORM 306-CLOSE-FILES.
+
+       300-OPEN-FILES.
+
+       301-READ-STOCK-FILE.
+
+       302-CREATE-REPORT-HEADER.
+
+       303-CREATE-REPORT-LINE.
+
+       304-CREATE-REPORT-FOOTER.
+
+       305-CLOSE-STOCK-FILE.
+
+       306-CLOSE-FILES.
+
+       400-READ-PORTFOLIO-RECORD.
+
+       401-SEARCH-STOCK-RECORD.
+
+       402-CREATE-REPORT-RECORD.
 
        END PROGRAM PROJECT-2.
