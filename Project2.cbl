@@ -3,7 +3,9 @@
       *          Cole Brito, 041074688
       * Course and Section: CST8283 302
       * Date: Mar 18, 2025
-      * Purpose: Project 2
+      * Purpose: Project 2 -- To read from files and compare based off a
+      * specific key (stock symbol) then output all data with matching key
+      * to a report file formatted
       * Tectonics: cobc
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -64,6 +66,7 @@
            05 T-STOCK-NAME      PIC X(25).
            05 T-CLOSING-PRICE   PIC 9(4)V99.
 
+      * TABLE COLOUMN FIELDS
        01 OUTPUT-RECORD-HEADER.
            05 HEADER-STOCK-NAME        PIC X(10) VALUE "STOCK NAME".
            05 FILLER                   PIC X(17) VALUE SPACES.
@@ -79,6 +82,7 @@
            05 FILLER                   PIC X(3) VALUE SPACES.
            05 HEADER-GAIN-LOSS         PIC X(9) VALUE "GAIN/LOSS".
 
+      * AUDIT REPORT BELOW THE FOOTER
        01 OUTPUT-RECORD-AUDIT.
            05 AUDIT-OUT-TITLE-READ  PIC X(13) VALUE "Records read:".
            05 FILLER PIC X(3) VALUE SPACES.
@@ -111,12 +115,14 @@
             PERFORM 202-TERMINATE.
             STOP RUN.
 
+      * OPENS THE FILES AND LOADS THE TABLE
        200-INTIALIZE.
             PERFORM 300-OPEN-FILES.
             PERFORM 301-READ-STOCK-FILE VARYING SUB-1 FROM 1 BY 1
                 UNTIL SUB-1 > 20 OR EOF-FLAG = "Y".
             PERFORM 305-CLOSE-STOCK-FILE.
 
+      * ROUTINE TO BUILD EACH PORTION OF THE REPORT
        201-GENERATE-REPORT-RECORDS.
             PERFORM 302-CREATE-REPORT-HEADER.
             MOVE "N" TO EOF-FLAG.
@@ -136,12 +142,14 @@
            NOT AT END
                MOVE STOCK-RECORD TO STOCK-TABLE (SUB-1).
 
+      * CREATES THE HEADER FOR THE REPORT FILE
        302-CREATE-REPORT-HEADER.
             WRITE REPORT-RECORD FROM HEADER-DIVISION.
             WRITE REPORT-RECORD FROM OUTPUT-RECORD-HEADER.
             WRITE REPORT-RECORD FROM HEADER-DIVISION.
             MOVE SPACES TO REPORT-RECORD.
 
+      * SEARCHES FOR A STOCK THEN POPUALTES REPORT FIELDS IF STOCK IS FOUND
        303-CREATE-REPORT-LINE.
             MOVE "N" TO STOCK-FOUND.
             PERFORM 401-SEARCH-STOCK-RECORD VARYING SUB-1 FROM 1 BY 1
@@ -151,6 +159,7 @@
             END-IF.
             PERFORM 400-READ-PORTFOLIO-RECORD.
 
+      * CREATES THE FOOTER FOR THE REPORT FILE
        304-CREATE-REPORT-FOOTER.
             WRITE REPORT-RECORD FROM HEADER-DIVISION.
             MOVE SPACES TO REPORT-RECORD.
@@ -169,14 +178,19 @@
 
        400-READ-PORTFOLIO-RECORD.
             READ PORTFOLIO-FILE-IN
-                AT END MOVE "Y" TO EOF-FLAG.
+                AT END MOVE "Y" TO EOF-FLAG
+                   NOT AT END ADD 1 TO AUDIT-RECORDS-READ.
 
+      * SEARCHES THE TABLE FOR A STOCK FOR A MATCHING STOCK FROM THE
+      * PORTFOLIO FILE
        401-SEARCH-STOCK-RECORD.
             IF (T-STOCK-SYMBOL-S(SUB-1) = STOCK-SYMBOL-P) THEN
                 MOVE "Y" TO STOCK-FOUND
                 SUBTRACT 1 FROM SUB-1
+                ADD 1 TO AUDIT-RECORDS-WRITTEN
             END-IF.
 
+      * CALCULATES AND MOVES VALUES TO BE USED IN THE REPORT FILE
        402-CREATE-REPORT-RECORD.
             MOVE T-STOCK-NAME(SUB-1) TO RECORD-STOCK-NAME.
             MOVE SHARES TO RECORD-SHARES.
